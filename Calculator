@@ -1,0 +1,178 @@
+# TO RUN THIS PROGRAM OTHER JAVA FILES ARE NEEDED
+# Do Not use $t8 and $t9 for any other purposes.
+# Do Not use syscall 
+# Do Not use functions
+# Do Not use load and store instructions
+# NO .data segment
+.text
+	add	$t9, $zero, $zero	# Initialize $t9 = 0
+	add	$s1, $zero, $zero	# Operand1 = $s1
+	add	$s2, $zero, $zero	# Operand2 = $s2
+	add	$t2, $zero, $zero	# Initialize the indicator for subtraction to zero
+	add	$t3, $zero, $zero	# Initialize the indicator for multiplication to zero
+	add	$s3, $zero, $zero
+	add	$t7, $zero, $zero	# Initialize the indicator when s1 is negative
+wait1:
+	bne	$t9, 0, loop1		# Once we get the input, starts the program
+	j	wait1		
+loop1:
+	sll	$t9, $t9, 1		# Get rid of the MSB(1)
+	srl	$t9, $t9, 1		# Shift the bits back to the actual input
+	beq	$t9, 0, display		# If $t9 == 0, go to display
+	beq	$t9, 1, display		# If $t9 == 1, go to display 
+	beq	$t9, 2, display		# If $t9 == 2, go to display
+	beq	$t9, 3, display		# If $t9 == 3, go to display
+	beq	$t9, 4, display		# If $t9 == 4, go to display
+	beq	$t9, 5, display		# If $t9 == 5, go to display
+	beq	$t9, 6, display		# If $t9 == 6, go to display
+	beq	$t9, 7, display		# If $t9 == 7, go to display
+	beq	$t9, 8, display		# If $t9 == 8, go to display
+	beq	$t9, 9, display		# If $t9 == 9, go to display
+	beq	$t9, 11, s1IsNegative	# If $s1 is a negative number
+s1IsNegative:
+	addi	$t7, $zero, -1		# Set the indicator to -1
+	add	$t9, $zero, $zero	# Reset $t9
+	j	wait1
+display:
+	beq	$t7, -1, negSign	# If s1 is negative, put the sign in front of it
+	add	$t8, $zero, $t9		# Display the first input
+	add	$s1, $zero, $t9		# Put the first number in operand1
+	add	$t9, $zero, $zero	# Reset $t9 = 0
+	j	wait2			# Check which operation user wants to do
+negSign:
+	add	$s4, $t9, $t9		# $s4 = 2*$t9
+	sub	$t8, $t9, $s4		# Display the number so far
+	add	$t9, $zero, $zero	# Reset $t9 = 0
+	j	wait2			# To get the second number		
+wait2:	
+	bne	$t9, 0, operator		
+	j	wait2
+operator:
+	sll	$t9, $t9, 1		# Get rid of the MSB(1)
+	srl	$t9, $t9, 1		# Shift the bits back to the actual input
+	beq	$t9, 10, addition	# If $t9 == 10, do addition
+	beq	$t9, 11, subtraction	# If $t9 == 11, do subtraction
+	beq	$t9, 12, multiplication	# If $t9 == 12, do multiplication
+	beq	$t9, 13, division	# If $t9 == 13, do division
+	beq	$t9, 14, results	# If $t9 == 14, display results
+	beq	$t9, 15, clear		# If $t9 == 15, clear 
+	beq 	$s2, 0, wait3		# If the first operand has more digits, go to wait3
+	bne	$s2, 0, loop2		# If the second operand has more digits, go to wait4
+wait3:
+	# Now look for the next digit
+	bne	$t9, 0, nextDigit	
+	j	wait3
+nextDigit:
+	sll	$t9, $t9, 1		# Get rid of the MSB(1)
+	srl	$t9, $t9, 1		# Shift the bits back to the actual input
+	beq	$t9, 0, display2	# If $t9 == 0, go to display2
+	beq	$t9, 1, display2	# If $t9 == 1, go to display2 
+	beq	$t9, 2, display2	# If $t9 == 2, go to display2
+	beq	$t9, 3, display2	# If $t9 == 3, go to display2
+	beq	$t9, 4, display2	# If $t9 == 4, go to display2
+	beq	$t9, 5, display2	# If $t9 == 5, go to display2
+	beq	$t9, 6, display2	# If $t9 == 6, go to display2
+	beq	$t9, 7, display2	# If $t9 == 7, go to display2
+	beq	$t9, 8, display2	# If $t9 == 8, go to display2
+	beq	$t9, 9, display2	# If $t9 == 9, go to display2
+display2:
+	add	$t0, $s1, $s1		# Store 2*number to $t0
+	sll	$s1, $s1, 3		# Shift the digit to the left by 3, store it back to $s1
+	add	$s1, $s1, $t0		# $t0 + $s1 to get operand1*10, store back to operand1(e.g. 1 will be 10 now)
+	add	$s1, $s1, $t9		# Operand1*10 + input
+	add	$t8, $zero, $s1		# Display the current number
+	add	$t9, $zero, $zero	# Reset $t9 = 0
+	j	wait2			# Go to operator to check if the first number is finished 
+addition:
+	# Now we need to get the second number, simply do the same again, and put the number in $s2
+	add	$t9, $zero, $zero	# Reset $t9 = 0
+	j	wait4	
+wait4:
+	bne	$t9, 0, second		# Once we get the second input
+	j	wait4
+second:
+	sll	$t9, $t9, 1		# Get rid of the MSB(1)
+	srl	$t9, $t9, 1		# Shift the bits back to the actual input
+	beq	$t9, 0, display3	# If $t9 == 0, go to display3
+	beq	$t9, 1, display3	# If $t9 == 1, go to display3
+	beq	$t9, 2, display3	# If $t9 == 2, go to display3
+	beq	$t9, 3, display3	# If $t9 == 3, go to display3
+	beq	$t9, 4, display3	# If $t9 == 4, go to display3
+	beq	$t9, 5, display3	# If $t9 == 5, go to display3
+	beq	$t9, 6, display3	# If $t9 == 6, go to display3
+	beq	$t9, 7, display3	# If $t9 == 7, go to display3
+	beq	$t9, 8, display3	# If $t9 == 8, go to display3
+	beq	$t9, 9, display3	# If $t9 == 9, go to display3
+	j	wait2			# If it's another operator, take that one
+display3:
+	add	$t8, $zero, $t9		# Display the first input
+	add	$s2, $zero, $t9		# Put the first number in operand2
+	add	$t9, $zero, $zero	# Reset $t9 = 0
+	j	wait2			# Check which operator the user wants to do 
+loop2:
+	# Now look for the next digit
+	beq	$t9, 0, display4	# If $t9 == 0, go to display4
+	beq	$t9, 1, display4	# If $t9 == 1, go to display4 
+	beq	$t9, 2, display4	# If $t9 == 2, go to display4
+	beq	$t9, 3, display4	# If $t9 == 3, go to display4
+	beq	$t9, 4, display4	# If $t9 == 4, go to display4
+	beq	$t9, 5, display4	# If $t9 == 5, go to display4
+	beq	$t9, 6, display4	# If $t9 == 6, go to display4
+	beq	$t9, 7, display4	# If $t9 == 7, go to display4
+	beq	$t9, 8, display4	# If $t9 == 8, go to display4
+	beq	$t9, 9, display4	# If $t9 == 9, go to display4
+display4:
+	add	$t1, $s2, $s2		# Store 2*number to $t1
+	sll	$s2, $s2, 3		# Shift the digit to the left by 3, store it back to $s2
+	add	$s2, $s2, $t1		# $t1 + $s2 to get operand2*10, store back to operand2(e.g. 1 will be 10 now)
+	add	$s2, $s2, $t9		# Operand2*10 + input
+	add	$t8, $zero, $s2		# Display the current number
+	add	$t9, $zero, $zero	# Reset $t9 = 0
+	j	wait2			# Go to operator to check if the second number is finished 
+subtraction:
+	addi	$t2, $zero, -1		# Use $t2 as an indicator to tell the program to do subtraction
+	j	addition		# Subtraction is just like doing addition w negative numbers
+multiplication:
+	add	$t3, $zero, -1		# Use $t3 as an indicator to tell the program to do multiplication
+	j	addition		# Loop s2 times 
+division:
+	add	$t5, $zero, $zero	# Initialize the counter to zero for later 
+	addi	$t4, $zero, -1		# Use $t4, as an indicator to tell the program to do division
+	j	addition
+results: # The last step is alwasy addition
+	beq	$t2, -1, subResults	# Display results from subtraction
+	beq	$t3, -1, mulResults	# Display results from multiplication
+	beq	$t4, -1, divResults	# Display results from division
+	add	$t8, $s1, $s2		# Display the results
+	add	$t9, $zero, $zero	# Reset $t9 = 0
+	j	wait2
+subResults:
+	add	$t3, $s2, $s2		# Get the negative number
+	sub	$s2, $s2, $t3
+	add	$t8, $s1, $s2		# Display results 
+	add	$t9, $zero, $zero	# Reset $t9 = 0
+	j	wait2
+mulResults:
+	beq	$s2, 0, finalMul	# Display the final answer
+	add	$s3, $s1, $s3
+	addi	$s2, $s2, -1
+	j	mulResults			
+finalMul:
+	add	$t8, $zero, $s3		
+	add	$t9, $zero, $zero
+	j 	wait2	
+divResults:
+	slt	$t6, $s1, $s2 
+	beq	$t6, 1, finalDiv
+	sub	$s1, $s1, $s2		# $s1 = $s1 - $s2
+	addi	$t5, $t5, 1		# counter++
+	j	divResults
+finalDiv:
+	add	$t8, $zero, $t5
+	add	$t9, $zero, $zero
+	j	wait2
+clear:
+	add	$t8, $zero, $zero	# Clear $t8
+	add	$t9, $zero, $zero	# Clear $t9
+	j	wait1			# Go back to the loop, do next operation
+	
