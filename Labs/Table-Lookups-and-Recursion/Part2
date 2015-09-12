@@ -1,0 +1,93 @@
+#     f(0) = 0
+#     f(1) = 1
+#     f(n) = f(n-1) + f(n-2), n > 2 
+.data
+	enter:	.asciiz		"Enter a nonnegative integer: "
+	fib_n:	.asciiz		"Fib("
+	endParentheses:.asciiz	") "
+	equal:	.asciiz 	"= "
+	invalid: .asciiz	"Invalid integer; try again.\n"
+.text
+main:
+	addi	$sp, $sp, -8 	       
+	sw	$s0, 4($sp)		
+	sw	$ra, 0($sp)		
+
+	addi	$v0, $zero, 4
+	la	$a0, enter
+	syscall
+	
+        addi    $v0, $zero, 5                  # read in an integer  
+        syscall                         
+        add    $s0, $zero, $v0                
+   
+   	slt	$s2, $s0, $zero
+   	beq	$s2, 1, invalidNum 
+        add    $a0, ,$zero, $s0
+        jal     _fib 
+        add    	$s1, $zero, $v0 
+        
+        addi	$v0, $zero, 4
+        la	$a0, fib_n
+        syscall
+
+        addi    $v0, $zero, 1
+        add	$a0, $zero, $s0
+        syscall                         
+	
+	addi	$v0, $zero, 4
+	la	$a0, endParentheses
+	syscall
+	
+	addi	$v0, $zero, 4
+	la	$a0, equal
+	syscall
+	
+	addi	$v0, $zero, 1
+	add	$a0, $zero, $s1
+	syscall
+	
+        sw      $s0, 4($sp)             
+     	lw	$ra, 0($sp)		
+	addi	$sp, $sp, 8 	        
+
+        addi    $v0, $zero, 10
+        syscall
+	
+	invalidNum:
+	addi	$v0, $zero, 4
+	la	$a0, invalid
+	syscall
+	jal	main
+_fib:
+        addi    $sp, $sp, -12           
+        sw      $ra, 8($sp)
+        sw      $s0, 4($sp)
+        sw      $s1, 0($sp)
+
+        add    $s0, $zero, $a0          # $s0 - n
+
+        bne     $s0, $zero, not_0       # Go to not_0 if $s0 != 0
+        addi    $v0, $zero, 0           # n = 0, f(n) = 0
+        j       done                                     
+
+not_0:  addi    $t0, $zero 1
+        bne     $s0, $t0, not_1          # Go to not_1 if $s0 != 1
+        addi    $v0, $zero, 1
+        j       done
+
+not_1:  addi    $a0, $s0, -1            # Assign $a0 = n-1
+        jal     _fib                    # Compute f(n-1)
+        add     $s1, $zero, $v0                
+
+        addi    $a0, $s0, -2            # Assign $a0 = n-2
+        jal     _fib                    # Compute f(n-2)
+        add     $v0, $s1, $v0           # Add f(n-1) + f(n-2)
+
+done:   
+        # Retrieve $ra, $s0, $s1 from stack and return
+        lw      $ra, 8($sp)
+        lw      $s0, 4($sp)
+        lw      $s1, 0($sp)
+        addi    $sp, $sp, 12            
+        jr      $ra
